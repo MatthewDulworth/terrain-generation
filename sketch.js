@@ -4,6 +4,9 @@
 let canvas;
 let rows, columns, terrain;
 let scale = 20;
+let heightOffset = 100;
+let yStart = 0;
+let noiseOffset = 0.1;
 
 
 // ----- setup ----- //
@@ -14,10 +17,10 @@ function setup() {
    canvas.style('display: block;');
 
    // get number of rows and columns 
-   columns = Math.floor(width / scale);
-   rows = Math.floor(height * 1.5 / scale);
+   columns = Math.floor(width * 2 / scale);
+   rows = Math.floor(height * 2 / scale);
 
-   terrain = generateTerrain(rows, columns, 10);
+   terrain = generateTerrain(rows, columns, heightOffset, noiseOffset, yStart);
 }
 
 // ----- resize ----- // 
@@ -28,21 +31,30 @@ function windowResized() {
 // ----- draw ----- // 
 function draw() {
    background(0);
+   yStart -= noiseOffset * 3;
+   terrain = generateTerrain(rows, columns, heightOffset, noiseOffset, yStart);
    drawMesh(terrain);
 }
 
-// ----- init terrain ----- // 
-function generateTerrain(rows, columns, offset) {
+// ----- generate terrain ----- // 
+function generateTerrain(rows, columns, heightOffset, noiseOffset, yStart) {
 
+   // create 2d array
    let terrain = new Array(rows);
    for (let i = 0; i < terrain.length; i++) {
       terrain[i] = new Array(columns);
    }
 
+   // generate perlin noise
+   let yOffset = yStart;
    for (let y = 0; y < rows; y++) {
+
+      let xOffset = 0;
       for (let x = 0; x < columns; x++) {
-         terrain[y][x] = random(-offset, offset);
+         terrain[y][x] = map(noise(xOffset, yOffset), 0, 1, -heightOffset, heightOffset);
+         xOffset += noiseOffset;
       }
+      yOffset += noiseOffset;
    }
 
    return terrain;
@@ -50,13 +62,12 @@ function generateTerrain(rows, columns, offset) {
 
 // ----- create grid ----- // 
 function drawMesh(terrain) {
-   push();
 
    // setup
    stroke(255);
    noFill();
    rotateX(PI / 3);
-   translate(-width / 2, -height / 2, 0);
+   translate(-width, -height * 1.2, 0);
 
    // draw triangle strips
    for (let y = 0; y < rows - 1; y++) {
@@ -68,5 +79,4 @@ function drawMesh(terrain) {
       }
       endShape();
    }
-   pop();
 }
