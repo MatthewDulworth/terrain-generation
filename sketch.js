@@ -26,6 +26,8 @@ function setup() {
 // ----- resize ----- // 
 function windowResized() {
    resizeCanvas(windowWidth, windowHeight);
+   columns = Math.floor(width * 2 / scale);
+   rows = Math.floor(height * 2 / scale);
 }
 
 // ----- draw ----- // 
